@@ -1,10 +1,15 @@
-#pip install boto3
+pip install boto3
 from collections import defaultdict
 
 import boto3
+from botocore.config import Config
 
+
+my_config = Config(
+    region_name='us-east-1'
+)
 # Connect to EC2
-ec2 = boto3.resource('ec2')
+ec2 = boto3.resource('ec2', config=my_config)
 
 # Get information for all running instances
 running_instances = ec2.instances.filter(Filters=[{

@@ -1,40 +1,50 @@
 import boto3
+from botocore.config import Config
 
-# Get the service resource.
-dynamodb = boto3.resource('dynamodb')
+# Define the region
+my_config = Config(region_name='us-east-1')
 
-# Create the DynamoDB table.
-table = dynamodb.create_table(
-    TableName='heydevops',
-    KeySchema=[
-        {
-            'AttributeName': 'username',
-            'KeyType': 'HASH'
-        },
-        {
-            'AttributeName': 'last_name',
-            'KeyType': 'RANGE'
+# Get the service resource with the custom configuration
+dynamodb = boto3.resource('dynamodb', config=my_config)
+
+# Create the DynamoDB table
+try:
+    table = dynamodb.create_table(
+        TableName='heydevops',
+        KeySchema=[
+            {
+                'AttributeName': 'username',
+                'KeyType': 'HASH'  # Partition key
+            },
+            {
+                'AttributeName': 'last_name',
+                'KeyType': 'RANGE'  # Sort key
+            }
+        ],
+        AttributeDefinitions=[
+            {
+                'AttributeName': 'username',
+                'AttributeType': 'S'  # String
+            },
+            {
+                'AttributeName': 'last_name',
+                'AttributeType': 'S'  # String
+            }
+        ],
+        ProvisionedThroughput={
+            'ReadCapacityUnits': 5,
+            'WriteCapacityUnits': 5
         }
-    ],
-    AttributeDefinitions=[
-        {
-            'AttributeName': 'username',
-            'AttributeType': 'S'
-        },
-        {
-            'AttributeName': 'last_name',
-            'AttributeType': 'S'
-        },
-    ],
-    ProvisionedThroughput={
-        'ReadCapacityUnits': 5,
-        'WriteCapacityUnits': 5
-    }
-)
+    )
 
-# Wait until the table exists.
-table.wait_until_exists()
+    # Wait until the table exists
+    print("Creating table...")
+    table.wait_until_exists()
 
+    # Print out some data about the table
+    print(f"Table '{table.table_name}' created successfully!")
+    print(f"Item count: {table.item_count}")
 
-# Print out some data about the table.
-print(table.item_count)
+except Exception as e:
+    print(f"An error occurred: {e}")
+

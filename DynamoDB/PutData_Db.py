@@ -1,5 +1,12 @@
 import boto3
-dynamodb = boto3.resource('dynamodb')
+from botocore.config import Config
+
+
+my_config = Config(
+    region_name='us-east-1'
+)
+
+dynamodb = boto3.resource('dynamodb', config=my_config)
 table = dynamodb.Table('heydevops')
 print(table.creation_date_time)
 table.put_item(
